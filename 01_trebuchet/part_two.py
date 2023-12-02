@@ -1,4 +1,4 @@
-INPUT_FILE = "input.txt"
+INPUT_FILE = 'input.txt'
 
 
 class NumberStringWindow:
@@ -6,7 +6,7 @@ class NumberStringWindow:
         self.string_name = string_name
         self.string_length = len(self.string_name)
         self.corresponding_number = corresponding_number
-        self.current_window = ""
+        self.current_window = ''
 
     # Returns true when the window matches the number string
     def update(self, c):
@@ -22,7 +22,7 @@ def main():
     try:
         lines = parse_text_file(INPUT_FILE)
     except FileNotFoundError:
-        print(f"File not found: {INPUT_FILE}")
+        print(f'File not found: {INPUT_FILE}')
         return
 
     total_sum = 0
@@ -48,7 +48,7 @@ def get_outer_digits(text):
 
 def get_first_digit(text, from_end=False):
     number_windows = [NumberStringWindow(name, number) for number, name in enumerate(
-        ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"])]
+        ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'])]
 
     if from_end:
         for window in number_windows:
@@ -65,5 +65,5 @@ def get_first_digit(text, from_end=False):
     return -1
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

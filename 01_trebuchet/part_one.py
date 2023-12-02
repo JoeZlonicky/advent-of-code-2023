@@ -1,11 +1,11 @@
-INPUT_FILE = "input.txt"
+INPUT_FILE = 'input.txt'
 
 
 def main():
     try:
         lines = parse_text_file(INPUT_FILE)
     except FileNotFoundError:
-        print(f"File not found: {INPUT_FILE}")
+        print(f'File not found: {INPUT_FILE}')
         return
 
     total_sum = 0
@@ -29,5 +29,5 @@ def get_outer_digit_characters(text):
     return leftmost, rightmost
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
