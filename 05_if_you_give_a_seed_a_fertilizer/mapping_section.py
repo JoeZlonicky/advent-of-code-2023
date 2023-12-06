@@ -1,4 +1,5 @@
 from mapping import Mapping
+from seed_range import SeedRange
 
 
 class MappingSection:
@@ -10,21 +11,23 @@ class MappingSection:
     def add_mapping(self, mapping: Mapping):
         self.mappings.append(mapping)
 
-    def map_values(self, values: list):
-        mapped_values = []
-        for value in values:
+    def map_ranges(self, ranges: list[SeedRange]) -> list[SeedRange]:
+        mapped_ranges = []
+        unmapped_ranges = ranges[:]  # Using a stack for handling leftover ranges from splits
+        while True:
+            if len(unmapped_ranges) == 0:
+                return mapped_ranges
+
+            seed_range = unmapped_ranges.pop()
             for mapping in self.mappings:
-                if mapping.is_in_range(value):
-                    new_value = mapping.map(value)
-                    assert (isinstance(new_value, int) or isinstance(new_value, tuple) or isinstance(new_value, list))
-                    if isinstance(new_value, int) or isinstance(new_value, tuple):
-                        mapped_values.append(new_value)
-                    elif isinstance(new_value, list):
-                        mapped_values.extend(new_value)
+                mapped, unmapped = mapping.map(seed_range)
+                if mapped:
+                    mapped_ranges.extend(mapped)
+                    if unmapped:
+                        unmapped_ranges.extend(unmapped)  # Throw leftover on stack to be mapped
                     break
             else:
-                mapped_values.append(value)
-        return mapped_values
+                mapped_ranges.append(seed_range)  # No matching so 1:1 mapping
 
     @classmethod
     def from_section_lines(cls, lines: list[str]) -> 'MappingSection':

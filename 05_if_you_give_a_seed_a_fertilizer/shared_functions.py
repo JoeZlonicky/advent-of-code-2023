@@ -1,3 +1,4 @@
+from seed_range import SeedRange
 from mapping_section import MappingSection
 
 
@@ -22,14 +23,13 @@ def create_mapping_sections(line_sections: list[list[str]]) -> dict[str, Mapping
     return mapping_sections
 
 
-# values can contain integers and/or tuples representing inclusive ranges
-# Returned list is a list of integers and/or tuples representing inclusive ranges
-def perform_mapping_pipeline(starting_input_name: str, values: list,
-                             mapping_sections: dict[str, MappingSection]) -> list:
-    current_input = starting_input_name
-    current_values = values
-    while current_input in mapping_sections:
-        mapping_list = mapping_sections[current_input]
-        current_values = mapping_list.map_values(current_values)
-        current_input = mapping_list.output_name
-    return current_values
+# Tries to continue mapping by hooking up output names to input names, until no matching name can be found
+def perform_mapping_pipeline(starting_input_name: str, ranges: list[SeedRange],
+                             mapping_sections: dict[str, MappingSection]) -> list[SeedRange]:
+    current_input_name = starting_input_name
+    current_ranges = ranges
+    while current_input_name in mapping_sections:
+        mapping_list = mapping_sections[current_input_name]
+        current_ranges = mapping_list.map_ranges(current_ranges)
+        current_input_name = mapping_list.output_name
+    return current_ranges
