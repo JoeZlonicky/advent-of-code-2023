@@ -1,3 +1,4 @@
+from typing import Callable
 import math
 
 
@@ -27,13 +28,13 @@ def parse_puzzle_input(input_file_name) -> tuple[str, dict]:
     return instructions, nodes
 
 
-def count_steps_to_destination(instructions, nodes, start_node, dest_node) -> int:
+def count_steps_to_destination(instructions, nodes, start_node, dest_predicate: Callable[[str], bool]) -> int:
     steps = 0
     instruction_i = 0
     instruction_count = len(instructions)
     current_node = start_node
 
-    while current_node != dest_node:
+    while not dest_predicate(current_node):
         steps += 1
         instruction = instructions[instruction_i]
 
@@ -46,34 +47,22 @@ def count_steps_to_destination(instructions, nodes, start_node, dest_node) -> in
 
 # Assumes ghosts move in a cyclic nature with a constant period between destinations, which is true for all inputs
 def count_ghost_steps_to_destination(instructions, nodes, start_letter, dest_letter) -> int:
-    steps = 0
-    instruction_i = 0
-    instruction_count = len(instructions)
-    current_nodes = {node: node for node in nodes if node[-1] == start_letter}
-    steps_to_dest: dict[str, int] = {}
+    start_nodes = {node: node for node in nodes if node[-1] == start_letter}
+    steps_to_dest = []
+    for node in start_nodes:
+        steps = count_steps_to_destination(instructions, nodes, node, lambda x: x[-1] == dest_letter)
+        steps_to_dest.append(steps)
 
-    while current_nodes:
-        steps += 1
-        instruction = instructions[instruction_i]
+    return calc_lcm(steps_to_dest)
 
-        current_nodes = {node: nodes[current_nodes[node]][0 if instruction == 'L' else 1] for node in current_nodes}
-        to_remove = []
-        for node in current_nodes:
-            current_node = current_nodes[node]
-            if current_node[-1] != dest_letter:
-                continue
 
-            steps_to_dest[node] = steps
-            to_remove.append(node)
-        for node in to_remove:
-            current_nodes.pop(node)
+def calc_lcm(numbers: list[int]) -> int:
+    assert len(numbers) > 0
 
-        instruction_i = (instruction_i + 1) % instruction_count
+    lcm = numbers[0]
+    if len(numbers) == 1:
+        return lcm
 
-    start_nodes = list(steps_to_dest.keys())
-    lcm = steps_to_dest[start_nodes[0]]
-    for other in start_nodes[1:]:
-        other_steps = steps_to_dest[other]
-        lcm = abs(lcm) * (abs(other_steps) // math.gcd(lcm, other_steps))
-
+    for steps in numbers[1:]:
+        lcm = abs(lcm) * (abs(steps) // math.gcd(lcm, steps))
     return lcm

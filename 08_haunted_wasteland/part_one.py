@@ -5,7 +5,7 @@ INPUT_FILE_NAME = './inputs/full_input.txt'
 
 def main():
     instructions, nodes = parse_puzzle_input(INPUT_FILE_NAME)
-    steps = count_steps_to_destination(instructions, nodes, 'AAA', 'ZZZ')
+    steps = count_steps_to_destination(instructions, nodes, 'AAA', lambda x: x == 'ZZZ')
     print(f'Steps: {steps}')
 
 
