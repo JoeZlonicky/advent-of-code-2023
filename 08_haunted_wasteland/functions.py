@@ -1,3 +1,6 @@
+import math
+
+
 def parse_lines_from_file(file_name):
     with open(file_name) as f:
         lines = [line.strip() for line in f]
@@ -41,18 +44,36 @@ def count_steps_to_destination(instructions, nodes, start_node, dest_node) -> in
     return steps
 
 
+# Assumes ghosts move in a cyclic nature with a constant period between destinations, which is true for all inputs
 def count_ghost_steps_to_destination(instructions, nodes, start_letter, dest_letter) -> int:
     steps = 0
     instruction_i = 0
     instruction_count = len(instructions)
-    current_nodes = {node for node in nodes if node[-1] == start_letter}
+    current_nodes = {node: node for node in nodes if node[-1] == start_letter}
+    steps_to_dest: dict[str, int] = {}
 
-    while any({node[-1] != 'Z' for node in current_nodes}):
+    while current_nodes:
         steps += 1
         instruction = instructions[instruction_i]
 
-        current_nodes = {nodes[node][0 if instruction == 'L' else 1] for node in current_nodes}
+        current_nodes = {node: nodes[current_nodes[node]][0 if instruction == 'L' else 1] for node in current_nodes}
+        to_remove = []
+        for node in current_nodes:
+            current_node = current_nodes[node]
+            if current_node[-1] != dest_letter:
+                continue
+
+            steps_to_dest[node] = steps
+            to_remove.append(node)
+        for node in to_remove:
+            current_nodes.pop(node)
 
         instruction_i = (instruction_i + 1) % instruction_count
 
-    return steps
+    start_nodes = list(steps_to_dest.keys())
+    lcm = steps_to_dest[start_nodes[0]]
+    for other in start_nodes[1:]:
+        other_steps = steps_to_dest[other]
+        lcm = abs(lcm) * (abs(other_steps) // math.gcd(lcm, other_steps))
+
+    return lcm
