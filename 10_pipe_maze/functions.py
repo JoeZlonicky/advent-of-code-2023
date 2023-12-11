@@ -119,6 +119,7 @@ def get_inner_tiles_in_row(grid: list[list[str]], loop: list[tuple[int, int]], y
     loop_pieces_in_row = [piece for piece in loop if piece[1] == y]
     inner_tiles = []
     enter_i = -1
+    last_vertical_char = ''
     for x in range(len(row)):
         if (x, y) not in loop_pieces_in_row:
             continue
@@ -130,14 +131,22 @@ def get_inner_tiles_in_row(grid: list[list[str]], loop: list[tuple[int, int]], y
         if char == '-':
             continue
 
-        if enter_i == -1 and char in ['|', 'J', '7']:
+        if char == '|':
+            intersections += 1
+
+        elif char == 'J' and last_vertical_char == 'F':
+            intersections += 1
+        elif char == '7' and last_vertical_char == 'L':
+            intersections += 1
+
+        if char != '|':
+            last_vertical_char = char
+
+        if char in ['|', 'J', '7'] and intersections % 2 != 0:
             enter_i = x
-            intersections += 1
         elif enter_i > 0 and char in ['|', 'L', 'F']:
-            if intersections % 2 != 0:
-                for i in range(enter_i + 1, x):
-                    inner_tiles.append((i, y))
-            intersections += 1
+            for i in range(enter_i + 1, x):
+                inner_tiles.append((i, y))
             enter_i = -1
 
     return inner_tiles
@@ -148,6 +157,7 @@ def get_inner_tiles_in_column(grid: list[list[str]], loop: list[tuple[int, int]]
     loop_pieces_in_column = [piece for piece in loop if piece[0] == x]
     inner_tiles = []
     enter_i = -1
+    last_horizontal_char = ''
     for y in range(len(grid)):
         if (x, y) not in loop_pieces_in_column:
             continue
@@ -159,14 +169,22 @@ def get_inner_tiles_in_column(grid: list[list[str]], loop: list[tuple[int, int]]
         if char == '|':
             continue
 
-        if enter_i == -1 and char in ['-', 'J', 'L']:
+        if char == '-':
+            intersections += 1
+
+        elif char == 'J' and last_horizontal_char == 'F':
+            intersections += 1
+        elif char == 'L' and last_horizontal_char == '7':
+            intersections += 1
+
+        if char != '-':
+            last_horizontal_char = char
+
+        if char in ['-', 'J', 'L'] and intersections % 2 != 0:
             enter_i = y
-            intersections += 1
         elif enter_i > 0 and char in ['-', 'F', '7']:
-            if intersections % 2 != 0:
-                for i in range(enter_i + 1, y):
-                    inner_tiles.append((x, i))
-            intersections += 1
+            for i in range(enter_i + 1, y):
+                inner_tiles.append((x, i))
             enter_i = -1
 
     return inner_tiles
