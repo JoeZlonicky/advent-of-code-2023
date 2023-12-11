@@ -96,3 +96,89 @@ def do_positions_connect(grid: list[list[str]], first_pos: tuple[int, int], seco
 def calculate_furthest_steps_of_loop(loop: list[tuple[int, int]]) -> int:
     length = calculate_loop_length(loop)
     return int(math.ceil(length / 2) - 1)
+
+
+def count_inner_tiles_in_grid(grid: list[list[str]], loop: list[tuple[int, int]]) -> int:
+    grid_size = len(grid[0]), len(grid)
+
+    inner_tiles_in_rows = []
+    for y in range(grid_size[1]):
+        inner_tiles_in_rows.extend(get_inner_tiles_in_row(grid, loop, y))
+
+    inner_tiles = []
+    for x in range(grid_size[0]):
+        inner_tiles_in_column = get_inner_tiles_in_column(grid, loop, x)
+        inner_tiles.extend(tile for tile in inner_tiles_in_column if tile in inner_tiles_in_rows)
+
+    return len(inner_tiles)
+
+
+def get_inner_tiles_in_row(grid: list[list[str]], loop: list[tuple[int, int]], y: int) -> list[tuple[int, int]]:
+    intersections = 0
+    row = grid[y]
+    loop_pieces_in_row = [piece for piece in loop if piece[1] == y]
+    inner_tiles = []
+    enter_i = -1
+    for x in range(len(row)):
+        if (x, y) not in loop_pieces_in_row:
+            continue
+
+        char = grid[y][x]
+        if char == 'S':
+            char = determine_start_piece_shape(loop[1], loop[-1])
+
+        if char == '-':
+            continue
+
+        if enter_i == -1 and char in ['|', 'J', '7']:
+            enter_i = x
+            intersections += 1
+        elif enter_i > 0 and char in ['|', 'L', 'F']:
+            if intersections % 2 != 0:
+                for i in range(enter_i + 1, x):
+                    inner_tiles.append((i, y))
+            intersections += 1
+            enter_i = -1
+
+    return inner_tiles
+
+
+def get_inner_tiles_in_column(grid: list[list[str]], loop: list[tuple[int, int]], x: int) -> list[tuple[int, int]]:
+    intersections = 0
+    loop_pieces_in_column = [piece for piece in loop if piece[0] == x]
+    inner_tiles = []
+    enter_i = -1
+    for y in range(len(grid)):
+        if (x, y) not in loop_pieces_in_column:
+            continue
+
+        char = grid[y][x]
+        if char == 'S':
+            char = determine_start_piece_shape(loop[1], loop[-1])
+
+        if char == '|':
+            continue
+
+        if enter_i == -1 and char in ['-', 'J', 'L']:
+            enter_i = y
+            intersections += 1
+        elif enter_i > 0 and char in ['-', 'F', '7']:
+            if intersections % 2 != 0:
+                for i in range(enter_i + 1, y):
+                    inner_tiles.append((x, i))
+            intersections += 1
+            enter_i = -1
+
+    return inner_tiles
+
+
+def determine_start_piece_shape(first_pos_after_start: tuple[int, int], last_pos_of_loop: tuple[int, int]) -> str:
+    x1, y1 = first_pos_after_start
+    x2, y2 = last_pos_of_loop
+    if abs(x1 - x2) == 2:
+        return '-'
+    if abs(y1 - y2) == 2:
+        return '|'
+    if x1 > x2:
+        return 'F' if y1 < y2 else 'L'
+    return '7' if y1 < y2 else 'J'
