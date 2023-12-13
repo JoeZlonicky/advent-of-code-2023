@@ -2,7 +2,7 @@ import math
 
 from shared_functions import get_lines_from_text_file, parse_game_from_line
 
-INPUT_FILE = 'input.txt'
+INPUT_FILE = 'inputs/puzzle.txt'
 
 
 def main():

@@ -1,4 +1,4 @@
-INPUT_FILE = 'input.txt'
+INPUT_FILE = 'inputs/puzzle.txt'
 
 
 def main():

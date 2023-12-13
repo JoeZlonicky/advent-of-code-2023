@@ -1,6 +1,6 @@
 from race_calculations import calc_number_of_ways_to_beat_record
 
-INPUT_FILE_NAME = './inputs/full_input.txt'
+INPUT_FILE_NAME = 'inputs/puzzle.txt'
 
 
 def main():

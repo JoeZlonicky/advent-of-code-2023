@@ -1,7 +1,7 @@
 from card import Card
 from helper_functions import get_lines_from_text_file
 
-INPUT_FILE_NAME = "input.txt"
+INPUT_FILE_NAME = "inputs/puzzle.txt"
 
 
 def main():

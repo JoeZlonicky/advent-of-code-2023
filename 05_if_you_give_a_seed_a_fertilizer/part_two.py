@@ -2,7 +2,7 @@ from mapping_section import MappingSection
 from seed_range import SeedRange
 from shared_functions import get_line_sections_from_text_file, create_mapping_sections, perform_mapping_pipeline
 
-INPUT_FILE_NAME = 'inputs/input.txt'
+INPUT_FILE_NAME = 'inputs/puzzle.txt'
 
 
 def main():
@@ -11,7 +11,7 @@ def main():
 
     mapping_sections: dict[str, MappingSection] = create_mapping_sections(line_sections[1:])
     output_ranges = perform_mapping_pipeline('seed', seed_ranges, mapping_sections)
-    
+
     output_ranges.sort(key=lambda x: x[0])
     range_with_smallest_start = output_ranges[0]
     print(range_with_smallest_start[0])

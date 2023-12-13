@@ -2,7 +2,7 @@ from mapping_section import MappingSection
 from seed_range import SeedRange
 from shared_functions import get_line_sections_from_text_file, create_mapping_sections, perform_mapping_pipeline
 
-INPUT_FILE_NAME = 'inputs/input.txt'
+INPUT_FILE_NAME = 'inputs/puzzle.txt'
 
 
 def main():

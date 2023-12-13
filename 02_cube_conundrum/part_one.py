@@ -1,6 +1,6 @@
 from shared_functions import get_lines_from_text_file, parse_game_from_line
 
-INPUT_FILE = 'input.txt'
+INPUT_FILE = 'inputs/puzzle.txt'
 COLOR_RESTRICTIONS = {
     'red': 12,
     'green': 13,

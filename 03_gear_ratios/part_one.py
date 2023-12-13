@@ -1,4 +1,4 @@
-INPUT_FILE_NAME = 'input.txt'
+INPUT_FILE_NAME = 'inputs/puzzle.txt'
 IGNORED_SYMBOLS = ['.']
 
 
