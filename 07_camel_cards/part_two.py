@@ -1,7 +1,7 @@
 from hand import Hand
 from parse_hands_from_file import parse_hands_from_file
 
-INPUT_FILE_NAME = './inputs/full_input.txt'
+INPUT_FILE_NAME = 'inputs/puzzle.txt'
 
 
 def main():

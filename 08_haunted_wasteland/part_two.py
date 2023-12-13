@@ -1,6 +1,6 @@
 from functions import parse_puzzle_input, count_ghost_steps_to_destination
 
-INPUT_FILE_NAME = './inputs/full_input.txt'
+INPUT_FILE_NAME = 'inputs/puzzle.txt'
 
 
 def main():
