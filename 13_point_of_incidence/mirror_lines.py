@@ -21,8 +21,8 @@ def find_mirror_line(rows, check_columns_if_not_found=True, ignore_result=(0, 0)
 
     if check_columns_if_not_found:
         columns = [''.join(i) for i in zip(*rows)]
-        columns_to_left = find_mirror_line(columns[::-1], False, ignore_result[::-1]).n_columns_to_left
-        result = MirrorLineResult(columns_to_left, 0)
+        n_row_above = find_mirror_line(columns[::-1], False, ignore_result[::-1]).n_columns_to_left
+        result = MirrorLineResult(n_row_above, 0)
         if result != ignore_result:
             return result
 

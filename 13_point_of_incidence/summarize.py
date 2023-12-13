@@ -28,6 +28,7 @@ def summarize_with_smudges(input_file) -> int:
         for line_idx, line in enumerate(section):
             line_as_list = list(line)
             match_found = False
+            
             for idx, char in enumerate(line):
                 line_as_list[idx] = '#' if char == '.' else '.'
                 section[line_idx] = ''.join(line_as_list)
@@ -40,7 +41,7 @@ def summarize_with_smudges(input_file) -> int:
                     break
 
                 line_as_list[idx] = char
-                section[line_idx] = ''.join(line_as_list)
+                section[line_idx] = line
 
             if match_found:
                 break
