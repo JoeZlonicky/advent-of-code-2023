@@ -17,6 +17,7 @@ class RockGrid:
         self.rows = rows
         self.height = len(self.rows)
         self.width = len(self.rows[0]) if self.height else 0
+        self.cycle_history: dict[str, tuple[int, list]] = {}
 
     @classmethod
     def from_file(cls, file_name):
@@ -27,11 +28,9 @@ class RockGrid:
 
     def slide_round_rocks(self, direction: SlideDirection):
         motion = direction.value
-        x_range = range(self.width) if motion[0] <= 0 else reversed(range(self.width))
-        y_range = range(self.height) if motion[1] <= 0 else reversed(range(self.height))
 
-        for y in y_range:
-            for x in x_range:
+        for y in range(self.height) if motion[1] <= 0 else reversed(range(self.height)):
+            for x in range(self.width) if motion[0] <= 0 else reversed(range(self.width)):
                 if not self.get_char(x, y) == self.ROUND_ROCK_CHAR:
                     continue
 
@@ -57,13 +56,28 @@ class RockGrid:
         return load_sum
 
     # Will slide everything north, west, south, east. Repeats specified times.
+    # If a repeated pattern is detected then can just calculate what the solution will be at the end
     def cycle(self, times=1):
         for i in range(times):
-            print(i)
+            state_string = ''.join([''.join(row) for row in self.rows])
+            previous = self.cycle_history.get(state_string)
+            if previous:
+                previous_idx, previous_solution = previous
+                repeat_size = i - previous_idx
+                times_left = times - i - 1
+                solution_index = previous_idx + times_left % repeat_size
+
+                solution = list(self.cycle_history.values())[solution_index]
+                _, rows = solution
+                self.rows = [row[:] for row in rows]
+                return
+
             self.slide_round_rocks(SlideDirection.NORTH)
             self.slide_round_rocks(SlideDirection.WEST)
             self.slide_round_rocks(SlideDirection.SOUTH)
             self.slide_round_rocks(SlideDirection.EAST)
+
+            self.cycle_history[state_string] = (i, [row[:] for row in self.rows])
 
     def slide_as_far_as_possible(self, x: int, y: int, direction: SlideDirection):
         motion = direction.value
