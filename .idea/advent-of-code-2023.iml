@@ -3,7 +3,7 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/05_if_you_give_a_seed_a_fertilizer/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/15_lens_library" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/16_the_floor_will_be_lava" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/01_trebuchet" />
       <excludeFolder url="file://$MODULE_DIR$/02_cube_conundrum" />
       <excludeFolder url="file://$MODULE_DIR$/03_gear_ratios" />
@@ -19,6 +19,7 @@
       <excludeFolder url="file://$MODULE_DIR$/12_hot_springs" />
       <excludeFolder url="file://$MODULE_DIR$/13_point_of_incidence" />
       <excludeFolder url="file://$MODULE_DIR$/14_parabolic_reflector_dish" />
+      <excludeFolder url="file://$MODULE_DIR$/15_lens_library" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
