@@ -22,3 +22,11 @@ class MachinePart:
 
     def calculate_rating(self):
         return self.x + self.m + self.a + self.s
+
+
+@dataclass
+class MachinePartRange:
+    x: tuple[int, int]
+    m: tuple[int, int]
+    a: tuple[int, int]
+    s: tuple[int, int]

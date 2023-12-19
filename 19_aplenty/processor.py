@@ -1,4 +1,4 @@
-from machine_part import MachinePart
+from machine_part import MachinePart, MachinePartRange
 from rule import Rule
 
 
@@ -22,3 +22,17 @@ class Processor:
             if rule.does_part_match(part):
                 return rule.output
         assert False
+
+    def process_part_range(self, part_range: MachinePartRange) -> list[tuple[str, MachinePartRange]]:
+        resulting_ranges = []
+        current_range = part_range
+
+        for rule in self.rules:
+            matching, not_matching = rule.split_range(current_range)
+            if matching:
+                resulting_ranges.append((rule.output, matching))
+            if not not_matching:
+                break
+            current_range = not_matching
+
+        return resulting_ranges
