@@ -10,6 +10,7 @@ class PulseModuleType(Enum):
     BROADCASTER = 1
     CONJUNCTION = 2
     FLIP_FLOP = 3
+    DUMMY = 4
 
 
 class PulseModule:
@@ -32,7 +33,7 @@ class PulseModule:
         assert False
 
     def add_input_connection(self, input_module_name: str):
-        if self.module_type != PulseModuleType.CONJUNCTION:
+        if self.module_type == PulseModuleType.FLIP_FLOP:  # Flips don't care about individual inputs, just the last
             return
 
         self.input_memory[input_module_name] = False
