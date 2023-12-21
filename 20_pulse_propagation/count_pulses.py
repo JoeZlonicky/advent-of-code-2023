@@ -16,7 +16,7 @@ def count_pulses_n_times(modules: dict[str, PulseModule], n: int = 1) -> tuple[i
 def min_presses_until_one_rx_low(modules: dict[str, PulseModule]) -> int:
     # Since the rx input is a conjunction module that occurs very infrequently,
     # we figure out the cycle of each input into the conjunction module and then when we know them all
-    # we can just find the product of them for the LCM
+    # we can just find the product of them to know when they will all coincide
     rx_inputs = modules['rx'].input_memory
     rx_conjunction_module = next(iter(rx_inputs))
     conjunction_inputs = modules[rx_conjunction_module].input_memory
@@ -35,7 +35,7 @@ def min_presses_until_one_rx_low(modules: dict[str, PulseModule]) -> int:
                     return reduce(lambda x, y: x * y, presses_for_each_input.values())
 
 
-# Counts the number of (low, high, low_rx) pulses
+# Counts the number of (low, high) pulses
 def count_pulses(modules: dict[str, PulseModule], high_output_watchers=None) -> tuple[int, int]:
     if high_output_watchers is None:
         high_output_watchers = {}
