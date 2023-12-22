@@ -1,12 +1,14 @@
 from collections import deque, defaultdict
 from garden_map import GardenMap
 from math import inf
-from numpy import linalg
+import numpy as np
 
 type Pos = tuple[int, int]
 
 
-def n_garden_plots_in_exact_steps(garden_map: GardenMap, start_pos: Pos, steps: int) -> int:
+def n_garden_plots_in_exact_steps(garden_map: GardenMap, steps: int) -> int:
+    start_pos = garden_map.start_pos
+
     min_steps = defaultdict(lambda: inf)
     min_steps[start_pos] = 0
 
@@ -38,3 +40,22 @@ def n_garden_plots_in_exact_steps(garden_map: GardenMap, start_pos: Pos, steps: 
                 reachable[adj] = True
 
     return len(reachable)
+
+
+# This assumes that the plots follow a quadratic equation for the steps intervals of (i * MAP_SIZE) + START_OFFSET
+# Shoutout to r/adventofcode for pointing in the direction of this solution
+def solve_quadratic_for_exact_steps(garden_map: GardenMap, steps: int) -> int:
+    def generate_ith_steps(i):
+        return i * garden_map.width + garden_map.start_pos[0]
+
+    a = []
+    b = []
+    for x in range(3):
+        s = generate_ith_steps(x)
+        n = n_garden_plots_in_exact_steps(garden_map, s)
+        a.append([s * s, s, 1])
+        b.append(n)
+
+    coefficients = np.linalg.solve(np.array(a), np.array(b))
+    solution = steps * steps * coefficients[0] + steps * coefficients[1] + coefficients[2]
+    return round(solution.real)
