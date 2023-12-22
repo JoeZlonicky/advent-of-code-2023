@@ -11,6 +11,7 @@ class GardenMap:
         self.height = len(self.rows)
         self.width = len(self.rows[0]) if self.height > 0 else 0
         self.start_pos = self.find_start_pos()
+        self.infinite_bounds = False
 
     @classmethod
     def from_file(cls, file_path):
@@ -27,9 +28,12 @@ class GardenMap:
         assert False
 
     def get_char(self, x, y):
-        return self.rows[y][x]
+        return self.rows[y % self.height][x % self.width]
 
     def is_in_bounds(self, x, y):
+        if self.infinite_bounds:
+            return True
+
         return 0 <= x < self.width and 0 <= y < self.height
 
     def is_pos_passable(self, x, y):
