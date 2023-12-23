@@ -70,33 +70,37 @@ class SandSimulation:
         box.top = new_top
         box.bottom = new_bottom
 
-    def count_safe_to_disintegrate(self):
-        not_safe = []
+    def determine_supported_by(self) -> dict[BoundingBox, list[BoundingBox]]:
+        supported_by = defaultdict(lambda: [])
 
-        # Instead of checking which boxes are above, we count the number of boxes that are only supported
-        # by one below and thus unsafe. Then we can just use that number and total to find the number of safe boxes.
         for box in self.__boxes:
             if box.bottom == 1:
-                continue
+                continue  # Supported by ground
 
             below_z = box.bottom - 1
             if below_z not in self.__z_layers:
-                assert False  # Means falling failed or something else is going weird
+                continue
 
-            intersect_count = 0
-            last_unsafe_box = None
             for other in self.__z_layers[below_z]:
                 if self.do_boxes_horizontally_intersect(box, other):
-                    intersect_count += 1
-                    last_unsafe_box = other
-                    if intersect_count > 1:
-                        break
+                    supported_by[box].append(other)
 
-            assert intersect_count >= 1
-            if intersect_count == 1 and last_unsafe_box not in not_safe:
-                not_safe.append(last_unsafe_box)
+        return supported_by
 
-        return len(self.__boxes) - len(not_safe)
+    def count_safe_to_disintegrate(self) -> int:
+        supported_by = self.determine_supported_by()
+        unsafe = []
+        for box in supported_by:
+            supporting_boxes = supported_by[box]
+            n_supporting_boxes = len(supporting_boxes)
+            if n_supporting_boxes == 0:
+                continue
+
+            if n_supporting_boxes == 1:
+                if supporting_boxes[0] not in unsafe:
+                    unsafe.append(supporting_boxes[0])
+
+        return len(self.__boxes) - len(unsafe)
 
     @staticmethod
     def do_boxes_horizontally_intersect(box1: BoundingBox, box2: BoundingBox):
