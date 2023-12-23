@@ -6,6 +6,7 @@ class BoundingBox:
         self.left = left
         self.front = front
         self.back = back
+        self.label = ''
 
     @classmethod
     def from_line(cls, line: str):

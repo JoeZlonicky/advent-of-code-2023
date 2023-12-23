@@ -1,6 +1,6 @@
 from sand_simulation import SandSimulation
 
-INPUT_FILE_PATH = './inputs/example.txt'
+INPUT_FILE_PATH = './inputs/puzzle.txt'
 
 
 def main():

@@ -16,8 +16,10 @@ class SandSimulation:
             lines = [line.strip() for line in f]
 
         boxes = []
-        for line in lines:
-            boxes.append(BoundingBox.from_line(line))
+        for idx, line in enumerate(lines):
+            box = BoundingBox.from_line(line)
+            box.label = chr(ord('a') + idx)
+            boxes.append(box)
 
         return cls(boxes)
 
@@ -62,15 +64,17 @@ class SandSimulation:
 
         bottom_of_removal = box.top - height + 1
 
-        for z in range(bottom_of_removal, box.top):
+        for z in range(bottom_of_removal, box.top + 1):
             self.__z_layers[z].remove(box)
 
         box.top = new_top
         box.bottom = new_bottom
 
     def count_safe_to_disintegrate(self):
-        not_safe_count = 0
+        not_safe = []
 
+        # Instead of checking which boxes are above, we count the number of boxes that are only supported
+        # by one below and thus unsafe. Then we can just use that number and total to find the number of safe boxes.
         for box in self.__boxes:
             if box.bottom == 1:
                 continue
@@ -80,22 +84,24 @@ class SandSimulation:
                 assert False  # Means falling failed or something else is going weird
 
             intersect_count = 0
+            last_unsafe_box = None
             for other in self.__z_layers[below_z]:
                 if self.do_boxes_horizontally_intersect(box, other):
                     intersect_count += 1
+                    last_unsafe_box = other
                     if intersect_count > 1:
                         break
 
             assert intersect_count >= 1
-            if intersect_count == 1:
-                not_safe_count += 1
+            if intersect_count == 1 and last_unsafe_box not in not_safe:
+                not_safe.append(last_unsafe_box)
 
-        return len(self.__boxes) - not_safe_count
+        return len(self.__boxes) - len(not_safe)
 
     @staticmethod
     def do_boxes_horizontally_intersect(box1: BoundingBox, box2: BoundingBox):
         is_right = box1.left > box2.right
-        is_left = box1.right < box1.left
+        is_left = box1.right < box2.left
         is_closer = box1.back < box2.front
         is_further = box1.front > box2.back
 
