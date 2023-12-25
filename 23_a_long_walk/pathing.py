@@ -22,8 +22,21 @@ class Path:
 
 def find_longest_path(grid: Grid, start_position: Pos, end_position: Pos, can_traverse_predicate):
     paths_to_explore: list[tuple[Pos, Pos]] = []  # Stores (prev, start) so goes in right direction
-    explored_paths: dict[Pos, list[Path]] = defaultdict(lambda: [])
+    explored_paths: dict[Pos, list[Path]] = defaultdict(lambda: [])  # Organized by start pos
     current_path = [start_position, start_position]
+
+    def explore_next_path():
+        if not paths_to_explore:
+            return False
+
+        nonlocal current_path
+        first, second = paths_to_explore.pop()
+        current_path = [first, second]
+        return True
+
+    def add_current_path_to_explored():
+        first, second, last = current_path[0], current_path[1], current_path[-1]
+        explored_paths[first].append(Path(first, second, last, len(current_path) - 1))
 
     while True:
         pos = current_path[-1]
@@ -33,23 +46,16 @@ def find_longest_path(grid: Grid, start_position: Pos, end_position: Pos, can_tr
 
         if len(next_positions) == 0:
             # Dead-end
-            if not paths_to_explore:
-                break
-
-            first, second = paths_to_explore.pop()
-            current_path = [first, second]
-            continue
+            if explore_next_path():
+                continue
+            break
         elif len(next_positions) == 1:
             next_pos = next_positions[0]
             current_path.append(next_pos)
             if next_pos == end_position:
-                explored_paths[current_path[0]].append(
-                    Path(current_path[0], current_path[1], current_path[-1], len(current_path) - 1))
-                if not paths_to_explore:
+                add_current_path_to_explored()
+                if not explore_next_path():
                     break
-
-                first, second = paths_to_explore.pop()
-                current_path = [first, second]
             continue
 
         # Split in path
@@ -68,13 +74,9 @@ def find_longest_path(grid: Grid, start_position: Pos, end_position: Pos, can_tr
 
             paths_to_explore.append(first_two)
 
-        explored_paths[current_path[0]].append(
-            Path(current_path[0], current_path[1], current_path[-1], len(current_path) - 1))
-        if not paths_to_explore:
+        add_current_path_to_explored()
+        if not explore_next_path():
             break
-
-        first, second = paths_to_explore.pop()
-        current_path = [first, second]
 
     longest_distance = find_longest_path_combination(explored_paths, start_position, end_position)
     return longest_distance
@@ -83,29 +85,27 @@ def find_longest_path(grid: Grid, start_position: Pos, end_position: Pos, can_tr
 def find_longest_path_combination(paths: dict[Pos, list[Path]], start_position: Pos, end_position: Pos,
                                   travelled=None) -> int:
     if travelled is None:
-        travelled = [paths[start_position][0]]
+        travelled = {start_position: paths[start_position][0]}
 
-    current_path = travelled[-1]
+    current_start = next(reversed(travelled.keys()))
+    current_path = travelled[current_start]
     if current_path.end == end_position:
         distance_sum = 0
-        for path in travelled:
-            distance_sum += path.distance
-        return distance_sum
+        for node in travelled:
+            distance_sum += travelled[node].distance
+        return distance_sum - 1  # Fix off-by-one with counting lengths vs. steps
 
     longest_distance = -1
     for path in paths[current_path.end]:
-        if path == current_path or path.start != current_path.end:
+        if path.start != current_path.end or path == current_path:
             continue
 
-        is_looping = False
-        for t_path in travelled[:-1]:
-            if t_path.end == path.start:
-                is_looping = True
-                break
-        if is_looping:
+        if path.end in travelled:
             continue
 
-        path_distance = find_longest_path_combination(paths, start_position, end_position, travelled + [path])
+        new_travelled = dict(travelled)
+        new_travelled[current_path.end] = path
+        path_distance = find_longest_path_combination(paths, start_position, end_position, new_travelled)
         if path_distance > longest_distance:
             longest_distance = path_distance
 
