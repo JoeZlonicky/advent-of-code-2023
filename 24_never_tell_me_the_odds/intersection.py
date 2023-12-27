@@ -1,5 +1,6 @@
 from typing import Callable
 from ray import Ray
+import numpy as np
 
 type Pos = tuple[float, float, float]
 
@@ -37,3 +38,48 @@ def get_ray_intersection(ray1: Ray, ray2: Ray) -> Pos:
         return x, y, z
 
     return NO_INTERSECTION
+
+
+def get_ray_that_hits_all(rays: list[Ray]) -> Ray:
+    # First we need to solve for x, dx, y, and dy
+    # x + t_i * dx = x_i + t_i * dx_i
+    # t_i * dx - t_i * dx_i = x_i - x
+    # t_i = (x_i - x) / (dx - dx_i)
+    # (x_i - x) / (dx - dx_i) = (y_i - y) / (dy - dy_i)
+    # (x_i - x)(dy - dy_i) + (y - y_i)(dx - dx_i) = (equation for second ray k)
+    # Some moving around...
+    # x*(dy_i-dy_k) + y*(dx_k-dx_i) + dx*(y_k-y_i) + dy*(x_i-x_k) = x_i*dy_i - x_k*dy_k - y_i*dx_i + y_k*dx_k
+    # A linear equation with 4 unknowns!
+
+    rows = []
+    rhs = []
+    r1, r2, r3, r4, r5 = rays[0], rays[1], rays[2], rays[3], rays[4]
+    for i, k in [(r1, r2), (r2, r3), (r3, r4), (r4, r5)]:
+        a_x, a_y = i.point[0:2]
+        b_x, b_y = k.point[0:2]
+        a_dx, a_dy = i.direction[0:2]
+        b_dx, b_dy = k.direction[0:2]
+
+        rows.append([a_dy - b_dy, b_dx - a_dx,
+                     b_y - a_y, a_x - b_x])
+        rhs.append(-b_x * b_dy + a_x * a_dy + b_y * b_dx - a_y * a_dx)
+
+    coefficients = np.linalg.solve(np.array(rows), np.array(rhs))
+    x, y, dx, dy = [n for n in coefficients]
+
+    # Now we can solve for z, dz using the following equation for two different rays:
+    # z + dz * t_i = z_i + t_i * dz_i
+
+    rows = []
+    rhs = []
+    for r in [r1, r2]:
+        t = (r.point[0] - x) / (dx - r.direction[0])
+        rows.append([1, t])
+        rhs.append(r.point[2] + t * r.direction[2])
+
+    coefficients = np.linalg.solve(np.array(rows), np.array(rhs))
+    z, dz = [round(n) for n in coefficients]
+    
+    x, y, dx, dy = [round(n) for n in [x, y, dx, dy]]
+
+    return Ray((x, y, z), (dx, dy, dz))
