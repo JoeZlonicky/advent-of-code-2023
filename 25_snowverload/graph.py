@@ -1,4 +1,5 @@
 from collections import defaultdict
+import heapq
 from math import inf
 import random
 
@@ -26,45 +27,58 @@ class Graph:
                 self.nodes.append(label)
 
             for right_label in right_labels:
-                self.edges[left_label].add(right_label)
-                self.edges[right_label].add(left_label)
+                self.add_edge(left_label, right_label)
 
-    # Important is defined as having the most traversals from paths of nodes that are the furthest from each other
-    def find_n_most_important_edges(self, n: int = 1, max_paths_to_test: int = 25) -> list[edge]:
+    def remove_edge(self, node_a, node_b):
+        self.edges[node_a].remove(node_b)
+        self.edges[node_b].remove(node_a)
+
+    def add_edge(self, node_a, node_b):
+        self.edges[node_a].add(node_b)
+        self.edges[node_b].add(node_a)
+
+    def find_most_travelled_edge_on_average(self, max_paths_to_test: int = 10) -> edge:
         edge_travel_count = defaultdict(lambda: 0)
 
         n_paths_to_test = min(len(self.nodes), max_paths_to_test)
         for start_node in random.choices(self.nodes, k=n_paths_to_test):
-            # Go to the furthest, and then from the furthest go to the furthest from that to get a long path that
-            # *should* go through a bridge, at least for the puzzle input
-            path_to_furthest = self.shortest_path_to_furthest_node(start_node)
-            new_start_node = tuple(path_to_furthest[-1])[0]
-            shortest_path = self.shortest_path_to_furthest_node(new_start_node)
+            shortest_path = self.shortest_path_to_furthest_node(start_node)
             for travelled_edge in shortest_path:
                 edge_travel_count[tuple(travelled_edge)] += 1
 
         edges = list(edge_travel_count.keys())
         edges.sort(key=lambda x: edge_travel_count[x], reverse=True)
-        return edges[:n]
+        return edges[0]
 
     def shortest_path_to_furthest_node(self, start_node: node) -> list[edge]:
         distances = defaultdict(lambda: inf)
         distances[start_node] = 0
         previous: dict[node, node] = {start_node: None}
 
-        unvisited = list(self.nodes)
+        unvisited = []
+        heap_entries = {}
+        heapq.heapify(unvisited)
+        for n in self.nodes:
+            priority_pair = [distances[n], n]
+            heapq.heappush(unvisited, priority_pair)
+            heap_entries[n] = priority_pair
 
         while unvisited:
-            current = min(unvisited, key=lambda x: distances[x])
-            unvisited.remove(current)
+            _, current_node = heapq.heappop(unvisited)
+            if current_node == 'REMOVED':
+                continue
 
-            distance_to_next = distances[current] + 1
-            for connected in self.edges[current]:
+            distance_to_next = distances[current_node] + 1
+            for connected in self.edges[current_node]:
                 if distance_to_next >= distances[connected]:
                     continue
 
                 distances[connected] = distance_to_next
-                previous[connected] = current
+                previous[connected] = current_node
+                entry = heap_entries[connected]
+                entry[1] = 'REMOVED'
+                new_priority_pair = [distance_to_next, connected]
+                heapq.heappush(unvisited, new_priority_pair)
 
         furthest = max(distances, key=lambda x: distances[x])
 

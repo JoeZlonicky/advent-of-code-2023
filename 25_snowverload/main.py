@@ -8,12 +8,23 @@ def main():
     graph = Graph()
     graph.add_nodes_from_file(INPUT_FILE_PATH)
 
-    for i in range(3):
-        edge = graph.find_n_most_important_edges(1)[0]
-        graph.edges[edge[0]].remove(edge[1])
-        graph.edges[edge[1]].remove(edge[0])
+    # Finding the most travelled edges *usually* gives the right result, but can get messed up on ties
+    # So... we just do it until it works
+    # Is this hacky? Yes. Does it work? Also yes.
+    while True:
+        removed_edges = []
+        for i in range(3):
+            edge = graph.find_most_travelled_edge_on_average()
+            graph.remove_edge(edge[0], edge[1])
+            removed_edges.append(edge)
 
-    groups = graph.count_groups()
+        groups = graph.count_groups()
+        if len(groups) == 2:
+            break
+
+        for edge in removed_edges:
+            graph.add_edge(edge[0], edge[1])
+
     print(prod(groups))
 
 
